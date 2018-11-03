@@ -8,5 +8,10 @@ CPU_TEMP="$cpuTemp1"."$cpuTempM"
 GPU_STRING=$(/opt/vc/bin/vcgencmd measure_temp)
 GPU_TEMP="$(echo $GPU_STRING | sed 's|[^0-9.]||g')"
 #        "$(echo $OUTPUT | sed -E 's/temp=([0-9]+.[0-9]).*/\1/')"
-echo "cpu $CPU_TEMP" | curl --data-binary @- "$1/metrics/job/pi_temperature"
-echo "gpu $GPU_TEMP" | curl --data-binary @- "$1/metrics/job/pi_temperature"
+
+cat <<EOF | curl --data-binary @- http://192.168.1.8:9091/metrics/job/rpi_temperature/instance/$HOSTNAME
+  # TYPE rpi_temperature gauge
+  # HELP rpi_temperature Just an example.
+  rpi_temperature{label="cpu"} $CPU_TEMP
+  rpi_temperature{label="gpu"} $GPU_TEMP
+EOF
